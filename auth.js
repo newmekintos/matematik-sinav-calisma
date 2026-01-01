@@ -41,3 +41,39 @@ function checkLogin() {
         card.style.animation = 'shake 0.5s ease-in-out';
     }
 }
+
+// ============================================
+// OTOMATİK VERSİYON KONTROLÜ (AUTO-REFRESH)
+// ============================================
+// Her 10 saniyede bir sitenin versiyonunu kontrol et
+// Eğer versiyon değişmişse, sayfayı zorla yenile ve oturumu kapat
+
+setInterval(checkForUpdates, 10000); // 10 saniye
+
+async function checkForUpdates() {
+    try {
+        // Cache'i atlamak için timestamp ekliyoruz
+        const response = await fetch('index.html?t=' + new Date().getTime());
+        const html = await response.text();
+
+        // HTML içindeki versiyonu bul: version: 'v1.0'
+        const versionMatch = html.match(/version:\s*'([^']+)'/);
+
+        if (versionMatch && versionMatch[1]) {
+            const serverVersion = versionMatch[1];
+            const localVersion = localStorage.getItem('auth_version');
+
+            // Eğer serverdaki versiyon farklıysa ve bizde bir versiyon kayıtlıysa
+            if (localVersion && serverVersion !== localVersion) {
+                console.log('Yeni versiyon tespit edildi: ' + serverVersion);
+                // Oturumu kapat
+                localStorage.removeItem('auth_status');
+                localStorage.removeItem('auth_version');
+                // Sayfayı yenile
+                window.location.reload(true);
+            }
+        }
+    } catch (error) {
+        console.error('Versiyon kontrolü yapılamadı:', error);
+    }
+}
