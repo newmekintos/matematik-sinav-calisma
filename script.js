@@ -8,7 +8,7 @@
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     if (savedTheme) {
         // Kullanıcı tercihi varsa onu kullan
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -33,7 +33,7 @@ function updateThemeIcon(theme) {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
     updateThemeIcon(newTheme);
@@ -49,6 +49,47 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
     }
 });
 
+// ============================================
+// MOBILE NAVIGATION
+// ============================================
+function toggleMobileNav() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    hamburger.classList.toggle('active');
+    mobileNav.classList.toggle('active');
+
+    // Prevent body scroll when mobile nav is open
+    if (mobileNav.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeMobileNav() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    hamburger.classList.remove('active');
+    mobileNav.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close mobile nav on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeMobileNav();
+    }
+});
+
+// Close mobile nav on resize to desktop
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        closeMobileNav();
+    }
+});
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
@@ -61,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleSolution(questionNum) {
     const solution = document.getElementById(`solution-${questionNum}`);
     const btn = solution.previousElementSibling;
-    
+
     if (solution.classList.contains('active')) {
         solution.classList.remove('active');
         btn.textContent = 'Çözümü Göster';
@@ -81,11 +122,11 @@ function toggleSolution(questionNum) {
 function filterQuestions(category) {
     const cards = document.querySelectorAll('.question-card');
     const buttons = document.querySelectorAll('.filter-btn');
-    
+
     // Update active button
     buttons.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     // Filter cards
     cards.forEach(card => {
         if (category === 'all' || card.dataset.category === category) {
@@ -149,7 +190,7 @@ const topicContent = {
             Sınavda \\(a^{\\log_a x} = x\\) özelliği çok sık kullanılır. Bu formülü ezberle!
         </div>
     `,
-    
+
     ustel: `
         <h2>🔢 Üstel ve Logaritmik Denklemler</h2>
         
@@ -199,7 +240,7 @@ const topicContent = {
             Logaritmik denklemlerde tanım kümesini kontrol etmeyi unutma! Logaritmanın içi pozitif olmalı.
         </div>
     `,
-    
+
     diziler: `
         <h2>📈 Diziler: Aritmetik ve Geometrik</h2>
         
@@ -253,7 +294,7 @@ const topicContent = {
             Zıplayan top problemlerinde geometrik dizi kullan! Her zıplamada yükseklik r katına düşer.
         </div>
     `,
-    
+
     trigonometri: `
         <h2>📐 Trigonometri: Toplam-Fark ve İki Kat Açı</h2>
         
@@ -323,11 +364,11 @@ const topicContent = {
 function openTopic(topic) {
     const modal = document.getElementById('topic-modal');
     const content = document.getElementById('topic-content');
-    
+
     content.innerHTML = topicContent[topic] || '<p>İçerik bulunamadı.</p>';
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Render MathJax
     if (window.MathJax) {
         MathJax.typesetPromise([content]);
@@ -430,21 +471,21 @@ function initQuiz() {
     score = 0;
     answers = new Array(quizQuestions.length).fill(null);
     quizCompleted = false;
-    
+
     const totalEl = document.getElementById('total-questions');
     const resultEl = document.getElementById('quiz-result');
     const contentEl = document.getElementById('quiz-content');
     const restartBtn = document.getElementById('restart-btn');
     const nextBtn = document.getElementById('next-btn');
     const prevBtn = document.getElementById('prev-btn');
-    
+
     if (totalEl) totalEl.textContent = quizQuestions.length;
     if (resultEl) resultEl.style.display = 'none';
     if (contentEl) contentEl.style.display = 'block';
     if (restartBtn) restartBtn.style.display = 'none';
     if (nextBtn) nextBtn.style.display = 'inline-block';
     if (prevBtn) prevBtn.style.display = 'inline-block';
-    
+
     showQuestion();
 }
 
@@ -456,19 +497,19 @@ function showQuestion() {
     const optionsContainer = document.getElementById('quiz-options');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-    
+
     if (currentEl) currentEl.textContent = currentQuestion + 1;
     if (scoreEl) scoreEl.textContent = score;
     if (questionText) questionText.innerHTML = question.question;
-    
+
     if (optionsContainer) {
         optionsContainer.innerHTML = '';
-        
+
         question.options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'quiz-option';
             optionDiv.innerHTML = option;
-            
+
             // Check if this question was already answered
             if (answers[currentQuestion] !== null) {
                 if (index === question.correct) {
@@ -479,14 +520,14 @@ function showQuestion() {
             } else {
                 optionDiv.onclick = () => selectAnswer(index);
             }
-            
+
             optionsContainer.appendChild(optionDiv);
         });
     }
-    
+
     // Update navigation buttons
     if (prevBtn) prevBtn.disabled = currentQuestion === 0;
-    
+
     if (nextBtn) {
         if (currentQuestion === quizQuestions.length - 1) {
             nextBtn.textContent = 'Bitir';
@@ -494,7 +535,7 @@ function showQuestion() {
             nextBtn.textContent = 'Sonraki ▶';
         }
     }
-    
+
     // Render MathJax
     if (window.MathJax) {
         MathJax.typesetPromise([document.getElementById('quiz-content')]);
@@ -503,10 +544,10 @@ function showQuestion() {
 
 function selectAnswer(index) {
     if (answers[currentQuestion] !== null) return;
-    
+
     const question = quizQuestions[currentQuestion];
     answers[currentQuestion] = index;
-    
+
     const options = document.querySelectorAll('.quiz-option');
     options.forEach((opt, i) => {
         opt.onclick = null;
@@ -516,7 +557,7 @@ function selectAnswer(index) {
             opt.classList.add('incorrect');
         }
     });
-    
+
     if (index === question.correct) {
         score++;
         document.getElementById('score').textContent = score;
@@ -541,25 +582,25 @@ function prevQuestion() {
 
 function finishQuiz() {
     quizCompleted = true;
-    
+
     const contentEl = document.getElementById('quiz-content');
     const resultEl = document.getElementById('quiz-result');
     const nextBtn = document.getElementById('next-btn');
     const prevBtn = document.getElementById('prev-btn');
     const restartBtn = document.getElementById('restart-btn');
-    
+
     if (contentEl) contentEl.style.display = 'none';
     if (resultEl) resultEl.style.display = 'block';
     if (nextBtn) nextBtn.style.display = 'none';
     if (prevBtn) prevBtn.style.display = 'none';
     if (restartBtn) restartBtn.style.display = 'inline-block';
-    
+
     const percentage = Math.round((score / quizQuestions.length) * 100);
     const finalScoreEl = document.getElementById('final-score');
     if (finalScoreEl) {
         finalScoreEl.textContent = `${score} / ${quizQuestions.length} (${percentage}%)`;
     }
-    
+
     let message = '';
     if (percentage >= 90) {
         message = '🎉 Mükemmel! Sınava çok hazırsın! Full çekersin!';
@@ -570,10 +611,10 @@ function finishQuiz() {
     } else {
         message = '💪 Daha çok çalışman gerekiyor. Pes etme!';
     }
-    
+
     const messageEl = document.getElementById('result-message');
     if (messageEl) messageEl.textContent = message;
-    
+
     // Confetti for perfect score
     if (percentage === 100) {
         createConfetti();
@@ -592,11 +633,11 @@ document.querySelectorAll('.nav-link').forEach(link => {
         e.preventDefault();
         const targetId = link.getAttribute('href');
         const targetElement = document.querySelector(targetId);
-        
+
         if (targetElement) {
             const navHeight = document.querySelector('.navbar').offsetHeight;
             const targetPosition = targetElement.offsetTop - navHeight - 20;
-            
+
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
@@ -640,7 +681,7 @@ document.addEventListener('keydown', (e) => {
             prevQuestion();
         }
     }
-    
+
     // Number keys for quiz answers (1-4)
     if (!quizCompleted && answers[currentQuestion] === null) {
         const num = parseInt(e.key);
@@ -672,7 +713,7 @@ function createConfetti() {
             border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
         `;
         document.body.appendChild(confetti);
-        
+
         setTimeout(() => confetti.remove(), 5000);
     }
 }
