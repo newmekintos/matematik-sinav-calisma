@@ -69,8 +69,11 @@ async function checkForUpdates() {
                 // Oturumu kapat
                 localStorage.removeItem('auth_status');
                 localStorage.removeItem('auth_version');
-                // Sayfayı yenile
-                window.location.reload(true);
+
+                // Sayfayı yenile (Cache busting ile)
+                // Mevcut URL'deki parametreleri temizle ve yeni bir timestamp ekle
+                const newUrl = window.location.pathname + '?cache_bust=' + new Date().getTime();
+                window.location.href = newUrl;
             }
         }
     } catch (error) {
